@@ -7,7 +7,7 @@ package model;
 // throwable
 public class ExceptionMaxUsagePerSong extends RuntimeException {
 	// exception to be thrown
-	public ExceptionMaxUsagePerSong() {
-		super("The requested song has reached the allowable plays for today!");
+	public ExceptionMaxUsagePerSong(String title) {
+		super("The requested song: " + title + ", has reached the allowable plays for today!");
 	}
 }

@@ -6,6 +6,7 @@ package model;
 // import classes
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.io.File;
 // song object
 public class JukeboxSong {
 	// instance vars
@@ -13,24 +14,42 @@ public class JukeboxSong {
 	private int year;
 	private String artist;
 	private int runtime;
-	private String fileName;
+	private String filePath;
 	private int timesPlayedToday;
 	private LocalDate lastRequestDate;
 	// constructor
-	public JukeboxSong(String title, int year, String artist, int runtime, String fileName) {
+	public JukeboxSong(String title, String artist, int runtime, String filePath) throws ExceptionFileNotFound {
+		// variables
+		File path = new File(filePath);
+		// check if the path exists
+		if (!path.exists())
+			throw new ExceptionFileNotFound(title);
+		// if the file exists continue
 		this.title = title;
-		this.year = year;
+		this.year = 1998;
 		this.artist = artist;
 		this.runtime = runtime;
-		this.fileName = fileName;
+		this.filePath = filePath;
 		this.timesPlayedToday = 0;
 		this.lastRequestDate = LocalDate.now();
+	}
+	// get title
+	public String getTitle() {
+		return this.title;
+	}
+	// get filePath
+	public String getFilePath() {
+		return this.filePath;
+	}
+	// get runtime + buffer
+	public int getRunTime() {
+		return this.runtime;
 	}
 	// check if this a valid request and throw an exception if not. record the usage
 	public boolean isValidRequest() throws ExceptionMaxUsagePerSong {
 		// check if the max requests have been received
 		if (hasMaxRequestsBeenReached())
-			throw new ExceptionMaxUsagePerUser();
+			throw new ExceptionMaxUsagePerSong(this.title);
 		// if valid, record the usage and return true
 		recordJukeboxUse();
 		// return true
@@ -43,6 +62,10 @@ public class JukeboxSong {
 		// record the last 
 		this.lastRequestDate = LocalDate.now();
 	}
+	// method to reset the times played
+	private void resetTimesPlayed() {
+		this.timesPlayedToday = 0;
+	}
 	// discover if max request have been reached for last requested date and if date needs to be reset
 	private boolean hasMaxRequestsBeenReached() {
 		// variables
@@ -52,6 +75,8 @@ public class JukeboxSong {
 		// check if the last used time is before the future date and the user has used all the songs
 		if (currentDate.isBefore(futureDate) && this.timesPlayedToday >= 3)
 			return true;
+		else if (currentDate.isAfter(futureDate) || currentDate.isEqual(futureDate))
+			resetTimesPlayed();
 		// return false otherwise
 		return false;
 	}	
