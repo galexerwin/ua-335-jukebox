@@ -60,6 +60,18 @@ public class JukeboxLibrary {
 	public boolean canSongBePlayed(String songTitle) {
 		return this.songs.get((String)songTitle).isValidRequest();
 	}
+	// get the runtime for user check
+	public int getRunTime(String songTitle) {
+		return this.songs.get((String)songTitle).getRunTime();
+	}
+	// update on success after checks the counter variables
+	public void updateCounters(String songTitle) {
+		this.songs.get((String)songTitle).recordJukeboxUse();
+	}
+	// public test for song exists in catalog
+	public boolean songExists(String songTitle) {
+		return this.songs.containsKey((String)songTitle);
+	}
 	// public load songs method
 	public void addSongToLibrary(String title, String artist, int runtime, String filePath) {
 		// variables

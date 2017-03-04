@@ -50,13 +50,11 @@ public class JukeboxSong {
 		// check if the max requests have been received
 		if (hasMaxRequestsBeenReached())
 			throw new ExceptionMaxUsagePerSong(this.title);
-		// if valid, record the usage and return true
-		recordJukeboxUse();
 		// return true
 		return true;
 	}
 	// increment the number of times the song has been requested today
-	private void recordJukeboxUse() {
+	public void recordJukeboxUse() {
 		// increment the number of songs requested
 		this.timesPlayedToday++;
 		// record the last 

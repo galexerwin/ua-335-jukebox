@@ -39,15 +39,16 @@ public class JukeboxUser {
 		this.isLoggedIn = true;
 	}
 	// check if this a valid request and throw an exception if not. record the usage
-	public boolean isValidRequest() throws ExceptionNotLoggedIn, ExceptionMaxUsagePerUser {
+	public boolean isValidRequest(int runtime) throws ExceptionNotLoggedIn, ExceptionMaxUsagePerUser, ExceptionMaxUsagePerLifetime {
 		// are they logged in
 		if (!isLoggedIn)
 			throw new ExceptionNotLoggedIn();
 		// check if the max requests have been received
 		if (hasMaxRequestsBeenReached())
 			throw new ExceptionMaxUsagePerUser();
-		// if valid record the usage and return true for another class to handle the play
-		recordJukeboxUse();
+		// check if the lifetime limits have been reached
+		if (this.limetimeBalanceRemainingInSeconds < runtime)
+			throw new ExceptionMaxUsagePerLifetime();
 		// return true
 		return true;
 	}
@@ -56,9 +57,11 @@ public class JukeboxUser {
 		return this.limetimeBalanceRemainingInSeconds;
 	}
 	// save when the user has added a song to the jukebox
-	private void recordJukeboxUse() {
+	public void recordJukeboxUse(int runtime) {
 		// increment the number of songs requested
 		this.numOfSongsRequested++;
+		// subtract the usage from the lifetime
+		this.limetimeBalanceRemainingInSeconds -= runtime;
 		// record the last 
 		this.lastRequestDate = LocalDate.now();
 	}

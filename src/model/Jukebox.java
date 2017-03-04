@@ -1,65 +1,119 @@
-package model;
-
-import java.time.LocalDateTime;
-
-/*Author: Alex Erwin
- *Purpose: The main Jukebox Object
+/*Author: Alex Erwin & Ian Burley
+ *Purpose: The Jukebox Driver. Controls access via login and tests rules before playing any songs
  */
-public class Jukebox {
+// package definition
+package model;
+// import classes
+import java.util.Observable;
+// jukebox
+public class Jukebox extends Observable {
 	// instance vars
-	JukeboxLibrary jl;
-	// main method
+	private JukeboxLibrary jl;
+	private JukeboxCredentials jukeboxUsers;
+	private JukeboxUser jukeboxUser;
+	private JukeboxLibrary jukeboxSongs;
+	private String userLoggedIn;
+	private String messageToDialog;
+	// main method (TO BE REMOVED AFTER GUI)
 	public static void main(String[] args) {
 		// construct the jukebox
 		Jukebox j = new Jukebox();
 	}	
 	// constructor
 	public Jukebox() {
-		// setup the library
-		jl = new JukeboxLibrary();
+		// setup objects
+		jukeboxUsers = new JukeboxCredentials();
+		jukeboxSongs = new JukeboxLibrary();
+		// set defaults
+		this.userLoggedIn = "";
+		this.messageToDialog = "";
 		
-		
-		System.out.println(LocalDateTime.now().toString());
-		
-		addSong("Tada");
-		jl.getNextSong();		
-		addSong("Tada");
-		jl.getNextSong();
-		addSong("Tada");
-		jl.getNextSong();		
-		addSong("Tada");
-		jl.getNextSong();		
-		try {
-			Thread.sleep(60000);
-		} catch (InterruptedException e) {}
-		
-		addSong("Tada");
-		jl.getNextSong();		
-		addSong("Tada");
-		jl.getNextSong();
-		addSong("Tada");
-		jl.getNextSong();
-		addSong("Tada");
-		jl.getNextSong();		
+		// usage stub
 		/*
-		playSong("Flute");
-		playSong("Space Music");
-		playSong("Flute");
-		playSong("Tada");
-		playSong("Flute");
-		playSong("Space Music");
-		playSong("Flute");*/
-
+		userLogin("Chris", 1);
+		addSong("Tada");
+		addSong("Flute");
+		addSong("SpaceMusic");
+		userLogin("Devon", 22);
+		addSong("Tada");
+		addSong("Tada");
+		addSong("Flute");
+		userLogin("Dev", 8);
+		userLogout();
+		addSong("Tada");
+		userLogin("River", 333);
+		addSong("Tada");
+		*/
 	}
-	
-	public void addSong(String songTitle) {	
+	// add a song to the queue. Max plays per song, per user, and lifetime and/or not logged in may throw exceptions
+	public void addSong(String songTitle) throws ExceptionMaxUsagePerSong, ExceptionMaxUsagePerUser, ExceptionMaxUsagePerLifetime, ExceptionNotLoggedIn {	
+		// wrap in try catch because it throws max usage per song
 		try {
-			jl.addSongToQueue(songTitle);
+			// check if the user and song are both valid
+			if (canRequestSong(songTitle)) {
+				// add the song to the queue
+				this.jukeboxSongs.addSongToQueue(songTitle);			
+				// update the counters on the song
+				this.jukeboxSongs.updateCounters(songTitle);
+				// update the counters on the user
+				this.jukeboxUsers.updateCounters(userLoggedIn, this.jukeboxSongs.getRunTime(songTitle));
+				// begin playing
+				this.jukeboxSongs.getNextSong();
+			}
+		} catch(ExceptionNotLoggedIn e) {
+			// forward the message
+			this.messageToDialog = e.getMessage();
+		} catch(ExceptionMaxUsagePerLifetime e) {
+			// forward the message
+			this.messageToDialog = e.getMessage();
+		} catch(ExceptionMaxUsagePerUser e) {
+			// forward the message
+			this.messageToDialog = e.getMessage();		
 		} catch(ExceptionMaxUsagePerSong e) {
-			System.out.println(e.getMessage());
-		} catch(Exception e) {
-			System.out.println(e.getMessage());
+			// forward the message
+			this.messageToDialog = e.getMessage();			
 		}
+		// tell the interface something has changed
+		setChanged();
+		// notify observers
+		notifyObservers();		
 	}
-	
+	// log the user in
+	public void userLogin(String username, int password) throws ExceptionInvalidCredentials {
+		// wrap in try catch because it throws invalid credentials exception
+		try {
+			// log in the user
+			this.jukeboxUsers.loginUser(username, password);
+			// save the user name
+			this.userLoggedIn = username;
+		} catch (ExceptionInvalidCredentials e) {
+			// forward the message
+			this.messageToDialog = e.getMessage();
+		}
+		// tell the interface something has changed
+		setChanged();
+		// notify observers
+		notifyObservers();		
+	}
+	// log out
+	public void userLogout() {
+		// logout the user
+		this.jukeboxUsers.logoutUser(this.userLoggedIn);
+		// tell the interface something has changed
+		setChanged();
+		// notify observers
+		notifyObservers();				
+	}
+	// helper method
+	private boolean canRequestSong(String songTitle) {
+		// determine if the user can request this song
+		if (!this.jukeboxSongs.songExists(songTitle)) // check if the song exists first
+			return false;
+		else if (!this.jukeboxUsers.canUserRequestSong(this.userLoggedIn, this.jukeboxSongs.getRunTime(songTitle))) // check if user can select any songs
+			return false;
+		else if (!this.jukeboxSongs.canSongBePlayed(songTitle)) // check if the song is playable
+			return false;
+		else 			
+			return true;
+	}
 }

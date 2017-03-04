@@ -24,11 +24,22 @@ public class JukeboxCredentials {
 		// check the password for the user
 		this.users.get((String)username).authenticateUser(password);
 	}
-	// check if user can request a song
-	public boolean canUserRequestSong(String username) {
-		// return if the request is valid. may throw ExceptionMaxUsagePerUser
-		return this.users.get((String)username).isValidRequest();
+	// logout user
+	public void logoutUser(String username) {
+		this.users.remove((String)username);
 	}
+	// check if user can request a song
+	public boolean canUserRequestSong(String username, int runtime) throws ExceptionNotLoggedIn, ExceptionMaxUsagePerUser, ExceptionMaxUsagePerLifetime {
+		// check if there was an empty username passed
+		if (username.length() == 0 || users.containsKey(username) == false)
+			throw new ExceptionNotLoggedIn();
+		// return if the request is valid. may throw an exception
+		return this.users.get((String)username).isValidRequest(runtime);
+	}
+	// update on success after checks the counter variables
+	public void updateCounters(String username, int runtime) {
+		this.users.get((String)username).recordJukeboxUse(runtime);
+	}	
 	// private load credentials
 	private void loadUserTable() {
 		// setup the users table
