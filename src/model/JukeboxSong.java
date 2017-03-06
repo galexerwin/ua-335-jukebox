@@ -61,7 +61,7 @@ public class JukeboxSong {
 		this.lastRequestDate = LocalDate.now();
 	}
 	// method to reset the times played
-	private void resetTimesPlayed() {
+	public void resetTimesPlayed() {
 		this.timesPlayedToday = 0;
 	}
 	// discover if max request have been reached for last requested date and if date needs to be reset

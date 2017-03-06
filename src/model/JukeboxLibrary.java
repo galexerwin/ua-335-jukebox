@@ -57,7 +57,7 @@ public class JukeboxLibrary {
 
 	}
 	// can song be played. may throw ExceptionMaxUsagePerSong
-	public boolean canSongBePlayed(String songTitle) {
+	public boolean canSongBePlayed(String songTitle) throws ExceptionMaxUsagePerSong {
 		return this.songs.get((String)songTitle).isValidRequest();
 	}
 	// get the runtime for user check
@@ -73,16 +73,8 @@ public class JukeboxLibrary {
 		return this.songs.containsKey((String)songTitle);
 	}
 	// public load songs method
-	public void addSongToLibrary(String title, String artist, int runtime, String filePath) {
-		// variables
-		JukeboxSong temp = null;
-		// try to load the file because it is possible the file doesn't exist
-		try { 
-			// try to load a song into a temp variable
-			temp = new JukeboxSong(title, artist, runtime, filePath);
-			// put the song into the library catalog
-			this.songs.put(title, temp);
-		} catch (ExceptionFileNotFound e) {}
+	public void addSongToLibrary(String title, String artist, int runtime, String filePath) throws ExceptionFileNotFound {
+		this.songs.put(title, new JukeboxSong(title, artist, runtime, filePath));
 	}
 	// private load songs helper for testing
 	private void loadSongsTable() {

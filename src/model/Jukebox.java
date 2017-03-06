@@ -28,6 +28,7 @@ public class Jukebox extends Observable {
 		this.userLoggedIn = "";
 		this.messageToDialog = "";
 		
+		addSong("Tada");
 		// usage stub
 		/*
 		userLogin("Chris", 1);
@@ -48,7 +49,7 @@ public class Jukebox extends Observable {
 	// add a song to the queue. Max plays per song, per user, and lifetime and/or not logged in may throw exceptions
 	public void addSong(String songTitle) throws ExceptionMaxUsagePerSong, ExceptionMaxUsagePerUser, ExceptionMaxUsagePerLifetime, ExceptionNotLoggedIn {	
 		// wrap in try catch because it throws max usage per song
-		try {
+		try { 
 			// check if the user and song are both valid
 			if (canRequestSong(songTitle)) {
 				// add the song to the queue
@@ -65,13 +66,13 @@ public class Jukebox extends Observable {
 			this.messageToDialog = e.getMessage();
 		} catch(ExceptionMaxUsagePerLifetime e) {
 			// forward the message
+			this.messageToDialog = e.getMessage(); System.out.println(this.messageToDialog);
+		} catch(ExceptionMaxUsagePerSong e) {
+			// forward the message
 			this.messageToDialog = e.getMessage();
 		} catch(ExceptionMaxUsagePerUser e) {
 			// forward the message
-			this.messageToDialog = e.getMessage();		
-		} catch(ExceptionMaxUsagePerSong e) {
-			// forward the message
-			this.messageToDialog = e.getMessage();			
+			this.messageToDialog = e.getMessage();
 		}
 		// tell the interface something has changed
 		setChanged();
@@ -103,6 +104,10 @@ public class Jukebox extends Observable {
 		setChanged();
 		// notify observers
 		notifyObservers();				
+	}
+	// get message
+	public String getUserMessage() {
+		return this.messageToDialog;
 	}
 	// helper method
 	private boolean canRequestSong(String songTitle) {
