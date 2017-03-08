@@ -28,7 +28,7 @@ public class Jukebox extends Observable {
 		this.userLoggedIn = "";
 		this.messageToDialog = "";
 		
-		addSong("Tada");
+		//addSong("Tada");
 		// usage stub
 		/*
 		userLogin("Chris", 1);
