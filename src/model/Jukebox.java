@@ -121,4 +121,11 @@ public class Jukebox extends Observable {
 		else 			
 			return true;
 	}
+	
+	//get the currentUser
+	public JukeboxUser getCurrentUser(String username){
+		if (jukeboxUsers.getUser(username)!=null)
+			return jukeboxUsers.getUser(username);
+		return null;
+	}
 }

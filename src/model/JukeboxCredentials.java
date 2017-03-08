@@ -54,4 +54,11 @@ public class JukeboxCredentials {
 		users.put("River", new JukeboxUser("River", 333));
 		users.put("Ryan", new JukeboxUser("Ryan", 4444));
 	}
+	
+	//return a specific jukeboxUser
+	public JukeboxUser getUser(String username){
+		if (users.containsKey(username))
+			return users.get((String)username);
+		return null;
+	}
 }

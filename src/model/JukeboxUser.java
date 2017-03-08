@@ -77,4 +77,9 @@ public class JukeboxUser {
 		// return false otherwise
 		return false;
 	}
+	
+	//return number of songs requested
+	public int getSongRequests(){
+		return numOfSongsRequested;
+	}
 }
