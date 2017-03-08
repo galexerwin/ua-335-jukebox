@@ -14,11 +14,6 @@ public class Jukebox extends Observable {
 	private JukeboxLibrary jukeboxSongs;
 	private String userLoggedIn;
 	private String messageToDialog;
-	// main method (TO BE REMOVED AFTER GUI)
-	public static void main(String[] args) {
-		// construct the jukebox
-		Jukebox j = new Jukebox();
-	}	
 	// constructor
 	public Jukebox() {
 		// setup objects
@@ -27,24 +22,6 @@ public class Jukebox extends Observable {
 		// set defaults
 		this.userLoggedIn = "";
 		this.messageToDialog = "";
-		
-		//addSong("Tada");
-		// usage stub
-		/*
-		userLogin("Chris", 1);
-		addSong("Tada");
-		addSong("Flute");
-		addSong("SpaceMusic");
-		userLogin("Devon", 22);
-		addSong("Tada");
-		addSong("Tada");
-		addSong("Flute");
-		userLogin("Dev", 8);
-		userLogout();
-		addSong("Tada");
-		userLogin("River", 333);
-		addSong("Tada");
-		*/
 	}
 	// add a song to the queue. Max plays per song, per user, and lifetime and/or not logged in may throw exceptions
 	public void addSong(String songTitle) throws ExceptionMaxUsagePerSong, ExceptionMaxUsagePerUser, ExceptionMaxUsagePerLifetime, ExceptionNotLoggedIn {	
@@ -66,7 +43,7 @@ public class Jukebox extends Observable {
 			this.messageToDialog = e.getMessage();
 		} catch(ExceptionMaxUsagePerLifetime e) {
 			// forward the message
-			this.messageToDialog = e.getMessage(); System.out.println(this.messageToDialog);
+			this.messageToDialog = e.getMessage();
 		} catch(ExceptionMaxUsagePerSong e) {
 			// forward the message
 			this.messageToDialog = e.getMessage();
@@ -105,9 +82,19 @@ public class Jukebox extends Observable {
 		// notify observers
 		notifyObservers();				
 	}
+	//get the currentUser
+	public JukeboxUser getCurrentUser(String username){
+		if (jukeboxUsers.getUser(username)!=null)
+			return jukeboxUsers.getUser(username);
+		return null;
+	}	
 	// get message
 	public String getUserMessage() {
 		return this.messageToDialog;
+	}
+	// clear message after use. Added because of tests in the view
+	public void clearUserMessage() {
+		this.messageToDialog = "";
 	}
 	// helper method
 	private boolean canRequestSong(String songTitle) {
@@ -120,12 +107,5 @@ public class Jukebox extends Observable {
 			return false;
 		else 			
 			return true;
-	}
-	
-	//get the currentUser
-	public JukeboxUser getCurrentUser(String username){
-		if (jukeboxUsers.getUser(username)!=null)
-			return jukeboxUsers.getUser(username);
-		return null;
 	}
 }

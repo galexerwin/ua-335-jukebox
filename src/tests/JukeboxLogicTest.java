@@ -200,20 +200,38 @@ public class JukeboxLogicTest {
 	@Test
 	public void testMainMaxUserRequests() {
 		// variables
-		String message = "";
+		String message = "", user = "";
 		// create a new jukebox
 		Jukebox jbox = new Jukebox();
 		// login
 		jbox.userLogin("Devon", 22);
+		// get current user
+		JukeboxUser userObj = jbox.getCurrentUser("Devon");
+		// test the user
+		assertEquals("Devon", userObj.whoAmI());
 		// add a song
 		jbox.addSong("Tada");
 		jbox.addSong("Tada");
 		jbox.addSong("Flute");
 		jbox.addSong("Space Music");
+		// test the song requests
+		assertEquals(3, userObj.getSongRequests());
+		// test the login state
+		assertTrue(userObj.isLoggedIn());
 		// get message
 		message = jbox.getUserMessage();
 		// test the message
 		assertEquals("You have exceeded your max song requests today!", message);
+		// clear message
+		jbox.clearUserMessage();
+		// get message
+		message = jbox.getUserMessage();		
+		// test the message
+		assertEquals("", message);
+		// get an empty currentUser
+		userObj = jbox.getCurrentUser("");
+		// test for null
+		assertEquals(null, userObj);
 	}	
 	
 	
@@ -276,8 +294,5 @@ public class JukeboxLogicTest {
 		// test
 		assertTrue(jl.songExists("Tada"));
 		assertFalse(jl.songExists("Darkside"));
-		
-		Jukebox jbox = new Jukebox();
-		jbox.main(null);
 	}
 }

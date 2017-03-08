@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
 // the user object
 public class JukeboxUser {
 	// instance variables
-	private String studentName;
-	private String studentID;
 	private String username;
 	private int password;
 	private boolean isLoggedIn;
@@ -77,9 +75,16 @@ public class JukeboxUser {
 		// return false otherwise
 		return false;
 	}
-	
-	//return number of songs requested
+	// return number of songs requested
 	public int getSongRequests(){
 		return numOfSongsRequested;
+	}
+	// return the logged in state
+	public boolean isLoggedIn() {
+		return this.isLoggedIn;
+	}
+	// return the logged in user
+	public String whoAmI() {
+		return this.username;
 	}
 }
