@@ -7,26 +7,48 @@ package model;
 // import classes
 import java.util.Map;
 import java.util.TreeMap;
+
+import exceptions.ExceptionInvalidCredentials;
+import exceptions.ExceptionMaxUsagePerLifetime;
+import exceptions.ExceptionMaxUsagePerUser;
+import exceptions.ExceptionNotLoggedIn;
 // credentials object
 public class JukeboxCredentials {
 	// instance variables
+	private final static JukeboxCredentials instance = new JukeboxCredentials(); // for the singleton
+	private static boolean initialized = false; // for the singleton	
 	private Map<String, JukeboxUser> users; 
-	// constructor
+	// constructor changed for singleton
 	public JukeboxCredentials() {
-		// load the users
-		loadUserTable();
+		super();
 	}
+	// initialize the singleton
+	private void initializeSingleton() {
+		// load the users
+		loadUserTable();		
+	}
+	// method which returns a reference to the singleton
+	public static synchronized JukeboxCredentials getInstance() {
+		// check if there is a JukeboxCredentials to return
+	    if (initialized) return instance;
+	    // create one if it doesn't exist
+	    instance.initializeSingleton();
+	    // set the flag
+	    initialized = true;
+	    // return true
+	    return instance;		
+	}	
 	// login user
-	public void loginUser(String username, int password) throws ExceptionInvalidCredentials {
+	public void loginUser(String username, char[] password) throws ExceptionInvalidCredentials {
 		// check and see if the user is valid
 		if (!(users.containsKey((String)username)))
 			throw new ExceptionInvalidCredentials();
 		// check the password for the user
-		this.users.get((String)username).authenticateUser(password);
+		this.users.get((String)username).loginUser(password);
 	}
 	// logout user
 	public void logoutUser(String username) {
-		this.users.remove((String)username);
+		this.users.get((String)username).logoutUser();
 	}
 	// check if user can request a song
 	public boolean canUserRequestSong(String username, int runtime) throws ExceptionNotLoggedIn, ExceptionMaxUsagePerUser, ExceptionMaxUsagePerLifetime {
@@ -49,10 +71,10 @@ public class JukeboxCredentials {
 		// setup the users table
 		this.users = new TreeMap<String, JukeboxUser>();		
 		// add the default users
-		users.put("Chris", new JukeboxUser("Chris", 1));
-		users.put("Devon", new JukeboxUser("Devon", 22));
-		users.put("River", new JukeboxUser("River", 333));
-		users.put("Ryan", new JukeboxUser("Ryan", 4444));
+		users.put("Chris", new JukeboxUser("Chris", "1"));
+		users.put("Devon", new JukeboxUser("Devon", "22"));
+		users.put("River", new JukeboxUser("River", "333"));
+		users.put("Ryan", new JukeboxUser("Ryan", "4444"));
 	}
 	/* IAN, we should change this method and proxy the JukeboxUsers through JukeboxCredentials
 	 * This is fine for this iteration

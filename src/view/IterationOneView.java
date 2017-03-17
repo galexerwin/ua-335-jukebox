@@ -142,7 +142,7 @@ public class IterationOneView extends JPanel implements Observer {
 					juke.clearUserMessage();
 				} else {
 					// assign a user object to use
-					cur = juke.getCurrentUser(curUser);					
+					cur = juke.getCurrentUserAsObject();					
 				}
 			} //end of "Login"
 	  

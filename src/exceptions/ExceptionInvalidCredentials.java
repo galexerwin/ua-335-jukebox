@@ -3,7 +3,7 @@
  * Throwable error on invalid credentials
  */
 // package definition
-package model;
+package exceptions;
 // throwable
 public class ExceptionInvalidCredentials extends RuntimeException {
 	// exception to be thrown

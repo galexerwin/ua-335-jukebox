@@ -3,11 +3,11 @@
  * Throwable error on reaching Max Usage Per User
  */
 // package definition
-package model;
+package exceptions;
 // throwable
-public class ExceptionMaxUsagePerLifetime extends RuntimeException {
+public class ExceptionMaxUsagePerUser extends RuntimeException {
 	// exception to be thrown
-	public ExceptionMaxUsagePerLifetime() {
-		super("You have exceeded your max lifetime usage of the jukebox!");
+	public ExceptionMaxUsagePerUser() {
+		super("You have exceeded your max song requests today!");
 	}
 }

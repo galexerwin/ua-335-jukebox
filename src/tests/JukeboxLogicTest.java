@@ -7,12 +7,12 @@ package tests;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-import model.ExceptionFileNotFound;
-import model.ExceptionInvalidCredentials;
-import model.ExceptionMaxUsagePerLifetime;
-import model.ExceptionMaxUsagePerSong;
-import model.ExceptionMaxUsagePerUser;
-import model.ExceptionNotLoggedIn;
+import exceptions.ExceptionFileNotFound;
+import exceptions.ExceptionInvalidCredentials;
+import exceptions.ExceptionMaxUsagePerLifetime;
+import exceptions.ExceptionMaxUsagePerSong;
+import exceptions.ExceptionMaxUsagePerUser;
+import exceptions.ExceptionNotLoggedIn;
 import model.Jukebox;
 import model.JukeboxCredentials;
 import model.JukeboxLibrary;
@@ -25,7 +25,7 @@ public class JukeboxLogicTest {
 	@Test(expected = ExceptionNotLoggedIn.class) 
 	public void noOneLoggedIn() {
 		// new jukebox credentials
-		JukeboxCredentials jc = new JukeboxCredentials();
+		JukeboxCredentials jc = JukeboxCredentials.getInstance();
 		// check if a song can be requested by empty user
 		jc.canUserRequestSong("", 0);
 		// check if the counters can be updated for an empty user
@@ -35,7 +35,7 @@ public class JukeboxLogicTest {
 	@Test(expected = ExceptionInvalidCredentials.class)
 	public void invalidUserPassword() {
 		// new jukebox credentials
-		JukeboxCredentials jc = new JukeboxCredentials();
+		JukeboxCredentials jc = JukeboxCredentials.getInstance();
 		// check if we can log in as anyone
 		jc.loginUser("", 1);
 		// check if we can log in as a proper user with the wrong password
@@ -45,7 +45,7 @@ public class JukeboxLogicTest {
 	@Test(expected = ExceptionFileNotFound.class)
 	public void invalidSongFile() {
 		// new jukebox library
-		JukeboxLibrary jl = new JukeboxLibrary();
+		JukeboxLibrary jl = JukeboxLibrary.getInstance();
 		// attempt to add a file we know isn't there
 		jl.addSongToLibrary("JavaIsFun", "CS335", 0, "songfiles/javaisfun.wav");
 	}
@@ -53,7 +53,7 @@ public class JukeboxLogicTest {
 	@Test(expected = ExceptionMaxUsagePerLifetime.class)
 	public void lifetimeMaxExceeded() {
 		// new jukebox credentials
-		JukeboxCredentials jc = new JukeboxCredentials();
+		JukeboxCredentials jc = JukeboxCredentials.getInstance();
 		// log in a user
 		jc.loginUser("Devon", 22);
 		// check if a song exceeding 90000 seconds (1500 minutes) can be requested
@@ -63,7 +63,7 @@ public class JukeboxLogicTest {
 	@Test(expected = ExceptionMaxUsagePerUser.class)
 	public void perUserMaxExceeded() {
 		// new jukebox credentials
-		JukeboxCredentials jc = new JukeboxCredentials();
+		JukeboxCredentials jc = JukeboxCredentials.getInstance();
 		// log in a user
 		jc.loginUser("Devon", 22);
 		// check if the song can be added and then update the counters
@@ -75,7 +75,7 @@ public class JukeboxLogicTest {
 	@Test(expected = ExceptionMaxUsagePerSong.class)
 	public void perSongMaxExceeded() {
 		// new jukebox library
-		JukeboxLibrary jl = new JukeboxLibrary();
+		JukeboxLibrary jl = JukeboxLibrary.getInstance();
 		// attempt to add songs to the queue
 		for(int i = 0; i < 4; i++) {
 			jl.addSongToQueue("Tada");
@@ -86,7 +86,7 @@ public class JukeboxLogicTest {
 	@Test
 	public void testUserAuth() {
 		// new jukebox credentials
-		JukeboxCredentials jc = new JukeboxCredentials();
+		JukeboxCredentials jc = JukeboxCredentials.getInstance();
 		// new jukebox user (directly)
 		JukeboxUser ju = new JukeboxUser("Devon", 1);
 		// test should not work if no user is associated
@@ -122,7 +122,7 @@ public class JukeboxLogicTest {
 	@Test
 	public void addAndPlaySong() {
 		// create a jukebox library
-		JukeboxLibrary jl = new JukeboxLibrary();
+		JukeboxLibrary jl = JukeboxLibrary.getInstance();
 		// add song to queue
 		jl.addSongToQueue("Tada");
 		// play the song
@@ -233,35 +233,12 @@ public class JukeboxLogicTest {
 		// test for null
 		assertEquals(null, userObj);
 	}	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	@Test
 	public void unimplemented() {
 		// variables 
 		boolean testSuccess = false;
 		// create a jukebox library
-		JukeboxLibrary jl = new JukeboxLibrary();		
+		JukeboxLibrary jl = JukeboxLibrary.getInstance();	
 		// create a jukebox song
 		JukeboxSong js = new JukeboxSong("Tada", "Test", 2, "songfiles/tada.wav");
 		// create a jukebox user

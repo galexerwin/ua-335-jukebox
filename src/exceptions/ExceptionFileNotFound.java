@@ -3,7 +3,7 @@
  * Throwable error on file not found
  */
 // package definition
-package model;
+package exceptions;
 // throwable
 public class ExceptionFileNotFound extends RuntimeException {
 	// exception to be thrown

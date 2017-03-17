@@ -3,7 +3,7 @@
  * Throwable error on reaching Max Usage Per Song
  */
 // package definition
-package model;
+package exceptions;
 // throwable
 public class ExceptionMaxUsagePerSong extends RuntimeException {
 	// exception to be thrown

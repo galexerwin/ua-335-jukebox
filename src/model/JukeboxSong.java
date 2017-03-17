@@ -6,6 +6,12 @@ package model;
 // import classes
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
+import exceptions.ExceptionFileNotFound;
+import exceptions.ExceptionMaxUsagePerSong;
+
 import java.io.File;
 // song object
 public class JukeboxSong {
@@ -33,6 +39,10 @@ public class JukeboxSong {
 		this.timesPlayedToday = 0;
 		this.lastRequestDate = LocalDate.now();
 	}
+	// get artist
+	public String getArtist() {
+		return this.artist;
+	}
 	// get title
 	public String getTitle() {
 		return this.title;
@@ -41,9 +51,21 @@ public class JukeboxSong {
 	public String getFilePath() {
 		return this.filePath;
 	}
-	// get runtime + buffer
+	// get runtime
 	public int getRunTime() {
 		return this.runtime;
+	}
+	// get runtime as a minute:second string
+	public String getRunTimeAsDuration() {
+		// variables
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("mm:ss"); // format duration as minute:second
+		LocalTime duration = LocalTime.of(0, ((runtime / 60) % 60), (runtime % 60)); // convert runtime into time format
+		// return as a duration
+		return formatter.format(duration);
+	}
+	// the to string method for displaying in a JList
+	public String toString() {
+		return getRunTimeAsDuration() + " " + getTitle() + " by " + getArtist();
 	}
 	// check if this a valid request and throw an exception if not. record the usage
 	public boolean isValidRequest() throws ExceptionMaxUsagePerSong {

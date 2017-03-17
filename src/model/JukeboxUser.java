@@ -8,20 +8,28 @@ package model;
 // import classes
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+
+import exceptions.ExceptionInvalidCredentials;
+import exceptions.ExceptionMaxUsagePerLifetime;
+import exceptions.ExceptionMaxUsagePerUser;
+import exceptions.ExceptionNotLoggedIn;
 // the user object
 public class JukeboxUser {
 	// instance variables
 	private String username;
-	private int password;
+	private char[] password;
 	private boolean isLoggedIn;
 	private int numOfSongsRequested;
 	private LocalDate lastRequestDate;
 	private int limetimeBalanceRemainingInSeconds;
 	// constructor
-	public JukeboxUser(String username, int password) {
+	public JukeboxUser(String username, String password) {
 		// set settings
 		this.username = username;
-		this.password = password;
+		this.password = password.toCharArray();
 		// set defaults
 		this.isLoggedIn = false;
 		this.numOfSongsRequested = 0;
@@ -29,12 +37,17 @@ public class JukeboxUser {
 		this.limetimeBalanceRemainingInSeconds = 1500 * 60;
 	}
 	// authenticate the user
-	public void authenticateUser(int password) throws ExceptionInvalidCredentials {
+	public void loginUser(char[] password) throws ExceptionInvalidCredentials {
 		// check password
-		if (!(this.password == password))
+		if (!(Arrays.equals(this.password, password)))
 			throw new ExceptionInvalidCredentials();
 		// login the user
 		this.isLoggedIn = true;
+	}
+	// logout the user
+	public void logoutUser() {
+		// set logged in state to false
+		this.isLoggedIn = false;
 	}
 	// check if this a valid request and throw an exception if not. record the usage
 	public boolean isValidRequest(int runtime) throws ExceptionNotLoggedIn, ExceptionMaxUsagePerUser, ExceptionMaxUsagePerLifetime {
@@ -54,6 +67,14 @@ public class JukeboxUser {
 	public int getLifetimeMaxBalance() {
 		return this.limetimeBalanceRemainingInSeconds;
 	}
+	// get runtime as a minute:second string
+	public String getLifetimeMaxAsDuration() {
+		// variables
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("mm:ss"); // format duration as minute:second
+		LocalTime duration = LocalTime.of(0, ((limetimeBalanceRemainingInSeconds / 60) % 60), (limetimeBalanceRemainingInSeconds % 60)); // convert runtime into time format
+		// return as a duration
+		return Integer.toString((limetimeBalanceRemainingInSeconds / 3600)) + ":" + formatter.format(duration);
+	}	
 	// save when the user has added a song to the jukebox
 	public void recordJukeboxUse(int runtime) {
 		// increment the number of songs requested

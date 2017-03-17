@@ -3,7 +3,7 @@
  * Throwable error on logged in
  */
 // package definition
-package model;
+package exceptions;
 // throwable
 public class ExceptionNotLoggedIn extends RuntimeException {
 	// exception to be thrown

@@ -5,20 +5,32 @@
 package model;
 // import classes
 import java.util.Observable;
+
+import javax.swing.ListModel;
+import javax.swing.table.TableModel;
+
+import exceptions.ExceptionInvalidCredentials;
+import exceptions.ExceptionMaxUsagePerLifetime;
+import exceptions.ExceptionMaxUsagePerSong;
+import exceptions.ExceptionMaxUsagePerUser;
+import exceptions.ExceptionNotLoggedIn;
 // jukebox
 public class Jukebox extends Observable {
 	// instance vars
-	private JukeboxLibrary jl;
 	private JukeboxCredentials jukeboxUsers;
-	private JukeboxUser jukeboxUser;
 	private JukeboxLibrary jukeboxSongs;
+	private ListModel<JukeboxSong> listModel;
+	private TableModel tableModel;
 	private String userLoggedIn;
 	private String messageToDialog;
 	// constructor
 	public Jukebox() {
 		// setup objects
-		jukeboxUsers = new JukeboxCredentials();
-		jukeboxSongs = new JukeboxLibrary();
+		jukeboxUsers = JukeboxCredentials.getInstance();
+		jukeboxSongs = JukeboxLibrary.getInstance(this);
+		// setup models
+		tableModel = jukeboxSongs;
+		listModel = jukeboxSongs;
 		// set defaults
 		this.userLoggedIn = "";
 		this.messageToDialog = "";
@@ -57,7 +69,7 @@ public class Jukebox extends Observable {
 		notifyObservers();		
 	}
 	// log the user in
-	public void userLogin(String username, int password) throws ExceptionInvalidCredentials {
+	public void userLogin(String username, char[] password) throws ExceptionInvalidCredentials {
 		// wrap in try catch because it throws invalid credentials exception
 		try {
 			// log in the user
@@ -77,15 +89,32 @@ public class Jukebox extends Observable {
 	public void userLogout() {
 		// logout the user
 		this.jukeboxUsers.logoutUser(this.userLoggedIn);
+		// clear last logged in
+		this.userLoggedIn = "";
 		// tell the interface something has changed
 		setChanged();
 		// notify observers
 		notifyObservers();				
 	}
-	//get the currentUser
-	public JukeboxUser getCurrentUser(String username){
-		if (jukeboxUsers.getUser(username)!=null)
-			return jukeboxUsers.getUser(username);
+	// get the loggedInState
+	public boolean isUserLoggedIn() {
+		// variables
+		boolean response = false;
+		JukeboxUser theUser = getCurrentUserAsObject();
+		// check the user
+		if (!(theUser == null))
+			return theUser.isLoggedIn();
+		// return the response
+		return response;
+	}
+	// get the currentUser as a String
+	public String getCurrentUserAsString() {
+		return this.userLoggedIn;
+	}
+	// get the currentUser
+	public JukeboxUser getCurrentUserAsObject() {
+		if (!(jukeboxUsers.getUser(this.userLoggedIn) == null))
+			return jukeboxUsers.getUser(this.userLoggedIn);
 		return null;
 	}	
 	// get message
@@ -96,6 +125,25 @@ public class Jukebox extends Observable {
 	public void clearUserMessage() {
 		this.messageToDialog = "";
 	}
+	// force a state change
+	public void forceStateChange() {
+		// tell the interface something has changed
+		setChanged();
+		// notify observers
+		notifyObservers();			
+	}
+	// return the table model object based on the JTable
+	public TableModel getJTableData() {
+		return tableModel;
+	}
+	// return the list model object based on the JList
+	public ListModel<JukeboxSong> getJListData() {
+		return listModel;
+	}
+	// return the queue as an array to refresh in the update method of view
+	public JukeboxSong[] getJListRefresh() {
+		return this.jukeboxSongs.getQueueAsArray();
+	}	
 	// helper method
 	private boolean canRequestSong(String songTitle) {
 		// determine if the user can request this song
