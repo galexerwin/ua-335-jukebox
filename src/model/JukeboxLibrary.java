@@ -5,6 +5,7 @@
  */
 // package definition
 package model;
+import java.io.Serializable;
 //import classes
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ import songplayer.EndOfSongEvent;
 import songplayer.EndOfSongListener;
 import songplayer.SongPlayer;
 // library object containing the songs
-public class JukeboxLibrary implements ListModel<JukeboxSong>, TableModel {
+public class JukeboxLibrary implements ListModel<JukeboxSong>, TableModel, Serializable {
 	// instance variables
 	private final static JukeboxLibrary instance = new JukeboxLibrary(); // for the singleton
 	private static boolean initialized = false; // for the singleton
@@ -113,8 +114,14 @@ public class JukeboxLibrary implements ListModel<JukeboxSong>, TableModel {
 		addSongToLibrary("The Curtain Rises", "Kevin MacLeod", 28, "songfiles/TheCurtainRises.mp3");
 		addSongToLibrary("Untameable Fire", "Pierre Langer", 282, "songfiles/UntameableFire.mp3");
 	}
+	
+	//If user wants to use previous data, create new PlaySongOnNewThread and then play songs in queue
+	public void forceUpdate(){
+		this.psnt=new PlaySongOnNewThread(juke); 
+		getNextSong();
+	}
 	// inner class that plays the song queue in a different thread to prevent unresponsiveness
-	private class PlaySongOnNewThread extends SwingWorker<Void, Void> implements EndOfSongListener {
+	private class PlaySongOnNewThread extends SwingWorker<Void, Void> implements EndOfSongListener, Serializable {
 		// instance variables
 		private boolean songIsFinished = true;
 		private boolean threadDied = false;

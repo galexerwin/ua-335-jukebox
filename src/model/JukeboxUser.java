@@ -5,6 +5,7 @@
  */
 // package definition
 package model;
+import java.io.Serializable;
 // import classes
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,7 +18,7 @@ import exceptions.ExceptionMaxUsagePerLifetime;
 import exceptions.ExceptionMaxUsagePerUser;
 import exceptions.ExceptionNotLoggedIn;
 // the user object
-public class JukeboxUser {
+public class JukeboxUser implements Serializable {
 	// instance variables
 	private String username;
 	private char[] password;

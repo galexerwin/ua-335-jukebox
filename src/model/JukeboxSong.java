@@ -13,8 +13,9 @@ import exceptions.ExceptionFileNotFound;
 import exceptions.ExceptionMaxUsagePerSong;
 
 import java.io.File;
+import java.io.Serializable;
 // song object
-public class JukeboxSong {
+public class JukeboxSong implements Serializable {
 	// instance vars
 	private String title;
 	private int year;

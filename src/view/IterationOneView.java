@@ -133,7 +133,7 @@ public class IterationOneView extends JPanel implements Observer {
 				// get the password as an int
 				int pass = Integer.parseInt(passField.getText());
 				// log the user in
-				juke.userLogin(curUser, pass);
+				//juke.userLogin(curUser, pass);
 				// if there is a message to the user
 				if (juke.getUserMessage().equals("") == false) {
 					// get the waiting message

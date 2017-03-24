@@ -4,6 +4,7 @@
  */
 // package definition
 package model;
+import java.io.Serializable;
 // import classes
 import java.util.Map;
 import java.util.TreeMap;
@@ -13,7 +14,7 @@ import exceptions.ExceptionMaxUsagePerLifetime;
 import exceptions.ExceptionMaxUsagePerUser;
 import exceptions.ExceptionNotLoggedIn;
 // credentials object
-public class JukeboxCredentials {
+public class JukeboxCredentials implements Serializable {
 	// instance variables
 	private final static JukeboxCredentials instance = new JukeboxCredentials(); // for the singleton
 	private static boolean initialized = false; // for the singleton	

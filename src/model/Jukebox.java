@@ -3,6 +3,7 @@
  */
 // package definition
 package model;
+import java.io.Serializable;
 // import classes
 import java.util.Observable;
 
@@ -15,7 +16,7 @@ import exceptions.ExceptionMaxUsagePerSong;
 import exceptions.ExceptionMaxUsagePerUser;
 import exceptions.ExceptionNotLoggedIn;
 // jukebox
-public class Jukebox extends Observable {
+public class Jukebox extends Observable implements Serializable {
 	// instance vars
 	private JukeboxCredentials jukeboxUsers;
 	private JukeboxLibrary jukeboxSongs;
@@ -155,5 +156,16 @@ public class Jukebox extends Observable {
 			return false;
 		else 			
 			return true;
+	}
+	
+	//return the current library for this Jukebox
+	public JukeboxLibrary getLibrary(){
+		return jukeboxSongs;
+	}
+	
+	//If using previous data, get current library, then call forceUpdate, allowing for songs in saved queue to play.
+	public void callNext(){
+		JukeboxLibrary temp=getLibrary();
+		temp.forceUpdate();
 	}
 }
