@@ -11,29 +11,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import javax.swing.ListModel;
-import javax.swing.SwingWorker;
-import javax.swing.SwingWorker.StateValue;
-import javax.swing.event.ListDataListener;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
-
 import exceptions.ExceptionFileNotFound;
 import exceptions.ExceptionMaxUsagePerSong;
-import javafx.scene.Parent;
-import songplayer.EndOfSongEvent;
-import songplayer.EndOfSongListener;
-import songplayer.SongPlayer;
 // library object containing the songs
-public class JukeboxLibrary implements ListModel<JukeboxSong>, TableModel, Serializable {
+@SuppressWarnings("serial")
+public class JukeboxLibrary implements TableModel, Serializable {
 	// instance variables
 	private final static JukeboxLibrary instance = new JukeboxLibrary(); // for the singleton
 	private static boolean initialized = false; // for the singleton
 	private Map<String, JukeboxSong> songs;
-	private List<JukeboxSong> queue;
 	private List<String> songKeys;
-	private PlaySongOnNewThread psnt;
 	private Jukebox juke;
 	// constructor changed for singleton
 	private JukeboxLibrary() {
@@ -43,16 +32,12 @@ public class JukeboxLibrary implements ListModel<JukeboxSong>, TableModel, Seria
 	private void initializeSingleton(Jukebox juke) {
 		// setup the songs table
 		this.songs = new TreeMap<String, JukeboxSong>();
-		// setup the song queue
-		this.queue = new ArrayList<>();
 		// setup the song keys
 		this.songKeys = new ArrayList<>();
 		// load the songs that we have
 		loadSongsTable();
 		// save back reference to Jukebox
 		this.juke = juke;
-		// create only one of the private class
-		this.psnt = new PlaySongOnNewThread(juke);
 	}
 	// method which returns a reference to the singleton
 	public static synchronized JukeboxLibrary getInstance(Jukebox juke) {
@@ -68,16 +53,12 @@ public class JukeboxLibrary implements ListModel<JukeboxSong>, TableModel, Seria
 	// add song to queue
 	public void addSongToQueue(String songTitle) throws ExceptionMaxUsagePerSong {
 		// check if the song can be played
-		if (canSongBePlayed(songTitle))
-			this.queue.add(this.songs.get((String)songTitle));
-	}
-	// get the next song to be played
-	public void getNextSong() {
-		// create a new worker thread if the old one is dead
-		if (this.psnt.hasThreadDied())
-			this.psnt = new PlaySongOnNewThread(this.juke);
-		// execute on a swing worker
-		this.psnt.execute();
+		if (canSongBePlayed(songTitle)) {
+			// get a handle to the queue
+			JukeboxQueue jq = juke.getQueue();
+			// add the song to the queue
+			jq.addSongToQueue(this.songs.get((String)songTitle));
+		}
 	}
 	// can song be played. may throw ExceptionMaxUsagePerSong
 	public boolean canSongBePlayed(String songTitle) throws ExceptionMaxUsagePerSong {
@@ -114,68 +95,9 @@ public class JukeboxLibrary implements ListModel<JukeboxSong>, TableModel, Seria
 		addSongToLibrary("The Curtain Rises", "Kevin MacLeod", 28, "songfiles/TheCurtainRises.mp3");
 		addSongToLibrary("Untameable Fire", "Pierre Langer", 282, "songfiles/UntameableFire.mp3");
 	}
-	
-	//If user wants to use previous data, create new PlaySongOnNewThread and then play songs in queue
-	public void forceUpdate(){
-		this.psnt=new PlaySongOnNewThread(juke); 
-		getNextSong();
-	}
-	// inner class that plays the song queue in a different thread to prevent unresponsiveness
-	private class PlaySongOnNewThread extends SwingWorker<Void, Void> implements EndOfSongListener, Serializable {
-		// instance variables
-		private boolean songIsFinished = true;
-		private boolean threadDied = false;
-		private Jukebox juke;
-		// constructor
-		public PlaySongOnNewThread (Jukebox juke) {
-			// store a reference to the caller
-			this.juke = juke;
-		}
-		// create a background thread and execute it
-		@Override
-		protected Void doInBackground() throws Exception {
-			// variables
-			JukeboxSong nextSong = null;
-			// make sure the current song has finished playing
-			if (hasSongFinishedPlaying()) {
-				// check if the queue is empty
-				if (!queue.isEmpty()) {
-					// get the next song in the queue
-					nextSong = queue.get(0);
-					// reset the song finished state
-					resetSongState();
-					// tell the system to play the file
-					SongPlayer.playFile(this, nextSong.getFilePath()); 
-				} else {
-					this.threadDied = true;
-				}
-			}				
-			// return
-			return null;
-		}
-		// reset after each use
-		public void resetSongState() {
-			this.songIsFinished = false;
-		}
-		// is the song over
-		public boolean hasSongFinishedPlaying() {
-			return this.songIsFinished;
-		}
-		public boolean hasThreadDied() {
-			return this.threadDied;
-		}
-		// interface method
-		public void songFinishedPlaying(EndOfSongEvent eosEvent) {
-			// tell us that the song is complete
-			this.songIsFinished = true;
-			// remove the song from the queue 
-			queue.remove(0);
-			// force an update for each song
-			this.juke.forceStateChange();
-			// get the next one
-			try { doInBackground(); } 
-			catch (Exception e) {}
-		}		
+	// get song key at
+	public String getSongKeyAt(int rowIndex) {
+		return this.songKeys.get(rowIndex);
 	}
 	// return the class type of the data contained within the cell
 	@Override
@@ -216,23 +138,6 @@ public class JukeboxLibrary implements ListModel<JukeboxSong>, TableModel, Seria
 		// default
 		return this.songs.get((String)title).getRunTime();
 	}
-	// return the queue as an array to refresh the jlist control
-	public JukeboxSong[] getQueueAsArray() {
-		// dimension the array
-		JukeboxSong[] theQueue = new JukeboxSong[getSize()];
-		// the return the queue as an array
-		return this.queue.toArray(theQueue);
-	}	
-	// return the item at the queue position
-	@Override
-	public JukeboxSong getElementAt(int rowIndex) {
-		return this.queue.get(rowIndex);
-	}
-	// JList method for getting the size of the queue
-	@Override
-	public int getSize() {
-		return this.queue.size();
-	}
 	// unused method stubs
 	@Override
 	public boolean isCellEditable(int arg0, int arg1) { return false; }
@@ -242,8 +147,4 @@ public class JukeboxLibrary implements ListModel<JukeboxSong>, TableModel, Seria
 	public void addTableModelListener(TableModelListener arg0) {}
 	@Override
 	public void removeTableModelListener(TableModelListener arg0) {}	
-	@Override
-	public void addListDataListener(ListDataListener arg0) {}	
-	@Override
-	public void removeListDataListener(ListDataListener arg0) {}		
 }

@@ -16,10 +16,12 @@ import exceptions.ExceptionMaxUsagePerSong;
 import exceptions.ExceptionMaxUsagePerUser;
 import exceptions.ExceptionNotLoggedIn;
 // jukebox
+@SuppressWarnings("serial")
 public class Jukebox extends Observable implements Serializable {
 	// instance vars
 	private JukeboxCredentials jukeboxUsers;
 	private JukeboxLibrary jukeboxSongs;
+	private JukeboxQueue jukeboxQueue;
 	private ListModel<JukeboxSong> listModel;
 	private TableModel tableModel;
 	private String userLoggedIn;
@@ -29,9 +31,10 @@ public class Jukebox extends Observable implements Serializable {
 		// setup objects
 		jukeboxUsers = JukeboxCredentials.getInstance();
 		jukeboxSongs = JukeboxLibrary.getInstance(this);
+		jukeboxQueue = JukeboxQueue.getInstance(this);
 		// setup models
 		tableModel = jukeboxSongs;
-		listModel = jukeboxSongs;
+		listModel = jukeboxQueue;
 		// set defaults
 		this.userLoggedIn = "";
 		this.messageToDialog = "";
@@ -49,7 +52,7 @@ public class Jukebox extends Observable implements Serializable {
 				// update the counters on the user
 				this.jukeboxUsers.updateCounters(userLoggedIn, this.jukeboxSongs.getRunTime(songTitle));
 				// begin playing
-				this.jukeboxSongs.getNextSong();
+				this.jukeboxQueue.getNextSong();
 			}
 		} catch(ExceptionNotLoggedIn e) {
 			// forward the message
@@ -143,7 +146,7 @@ public class Jukebox extends Observable implements Serializable {
 	}
 	// return the queue as an array to refresh in the update method of view
 	public JukeboxSong[] getJListRefresh() {
-		return this.jukeboxSongs.getQueueAsArray();
+		return this.jukeboxQueue.getQueueAsArray();
 	}	
 	// helper method
 	private boolean canRequestSong(String songTitle) {
@@ -157,15 +160,21 @@ public class Jukebox extends Observable implements Serializable {
 		else 			
 			return true;
 	}
-	
-	//return the current library for this Jukebox
-	public JukeboxLibrary getLibrary(){
-		return jukeboxSongs;
+	// if using previous data, get current queue, then call forceUpdate, allowing for songs in saved queue to play.
+	public void callNext() {
+		// force the queue to play
+		this.jukeboxQueue.forceUpdate();
 	}
-	
-	//If using previous data, get current library, then call forceUpdate, allowing for songs in saved queue to play.
-	public void callNext(){
-		JukeboxLibrary temp=getLibrary();
-		temp.forceUpdate();
+	// return the current credentials
+	public JukeboxCredentials getUsers() {
+		return this.jukeboxUsers;
+	}
+	// return the current library
+	public JukeboxLibrary getLibrary() {
+		return this.jukeboxSongs;
+	}
+	// return the current queue for this jukebox
+	public JukeboxQueue getQueue() {
+		return this.jukeboxQueue;
 	}
 }

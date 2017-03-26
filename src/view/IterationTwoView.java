@@ -1,27 +1,26 @@
-
+/*Author: Alex Erwin & Ian Burley
+ *Purpose: Iteration 2 view for JukeBox GUI
+ */
+// package definition
 package view;
-import java.awt.BorderLayout;
 //import classes
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
-
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-
 import model.*;
-
-
+// gui view implementation
+@SuppressWarnings("serial")
 public class IterationTwoView extends JPanel implements Observer {
 	private JTable table;
 	private TableModel tmodel;
@@ -132,6 +131,7 @@ public class IterationTwoView extends JPanel implements Observer {
 		this.add(loginBlock);
 	}
 	// the songs available table
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private JPanel getSongsAvailableTable() {
 		// variables
 		JPanel tablePanel = new JPanel();
@@ -311,6 +311,7 @@ public class IterationTwoView extends JPanel implements Observer {
 		private void addItemsToQueue() {
 			// get the selections
 			int[] selection = table.getSelectedRows();
+			JukeboxLibrary jl = juke.getLibrary();
 			// check if there were any selections
 			if (selection.length == 0) {
 				// check if user is logged in
@@ -324,8 +325,8 @@ public class IterationTwoView extends JPanel implements Observer {
 			} else {
 				// iterate over the selections
 				for (int i = 0; i < selection.length; i++) {
-					// attempt to add the song
-					juke.addSong(table.getValueAt(selection[i], 1).toString());
+					// attempt to add the song (convert the row index to the model)
+					juke.addSong(jl.getSongKeyAt(table.convertRowIndexToModel(selection[i])));
 					// check the status messages
 					if (isThereAnError())
 						break;
